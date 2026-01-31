@@ -3,19 +3,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/common/Button";
 import Input from "../components/common/Input";
 import Select from "../components/common/Select";
+import { createEmployeeApi, getDepartmentsApi, getEmployeeByIdApi, updateEmployeeApi } from "../services/apis";
 
 /* -------------------- Constants -------------------- */
 
 const BASE_URL = "http://127.0.0.1:8000/users";
 
-const DEPARTMENTS = [
-  { value: "IT", label: "IT" },
-  { value: "Design", label: "Design" },
-  { value: "Operations", label: "Operations" },
-  { value: "HR", label: "HR" },
-  { value: "Finance", label: "Finance" },
-  { value: "Marketing", label: "Marketing" },
-];
+// const DEPARTMENTS = [
+//   { value: "IT", label: "IT" },
+//   { value: "Design", label: "Design" },
+//   { value: "Operations", label: "Operations" },
+//   { value: "HR", label: "HR" },
+//   { value: "Finance", label: "Finance" },
+//   { value: "Marketing", label: "Marketing" },
+// ];
 
 const ROLES = [
   { value: "Developer", label: "Developer" },
@@ -30,28 +31,22 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /* -------------------- API Functions -------------------- */
 
-const getEmployeeByIdApi = async (id) => {
-  const res = await fetch(`${BASE_URL}/${id}`);
+const getEmployeeById = async (id) => {
+  const res = await getEmployeeByIdApi(id);
+  console.log("res",res);
+  
   if (!res.ok) throw new Error("Failed to fetch employee");
   return res.json();
 };
 
-const createEmployeeApi = async (data) => {
-  const res = await fetch(`${BASE_URL}/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+const createEmployee = async (data) => {
+  const res = await createEmployeeApi(data);
   if (!res.ok) throw new Error("Failed to create employee");
   return res.json();
 };
 
-const updateEmployeeApi = async (id, data) => {
-  const res = await fetch(`${BASE_URL}/${id}/`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+const updateEmployee = async (id, data) => {
+  const res = await updateEmployeeApi(id,data);
   if (!res.ok) throw new Error("Failed to update employee");
   return res.json();
 };
@@ -70,7 +65,7 @@ function validateForm(values) {
     errors.email = "Enter a valid email address";
 
   if (!values.role) errors.role = "Role is required";
-  if (!values.department) errors.department = "Department is required";
+  // if (!values.department) errors.department = "Department is required";
 
   if (values.phone && !/^[\d\s\-+()]*$/.test(values.phone))
     errors.phone = "Invalid phone number";
@@ -97,6 +92,8 @@ export default function EmployeeForm() {
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditMode);
+  const [departments, setDepartments] = useState([]);
+
 
   /* -------- Fetch employee on edit -------- */
 
@@ -110,7 +107,7 @@ export default function EmployeeForm() {
           name: employee.name || "",
           email: employee.email || "",
           role: employee.role || "",
-          department: employee.department || "",
+          department: employee.department.name || "",
           phone: employee.phone || "",
         });
       } catch (err) {
@@ -123,6 +120,24 @@ export default function EmployeeForm() {
 
     fetchEmployee();
   }, [id, isEditMode, navigate]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const data = await getDepartmentsApi();
+        setDepartments(
+          data.map((d) => ({
+            value: d.id ?? d.name,
+            label: d.name,
+          }))
+        );
+      } catch {
+        alert("Failed to load departments");
+      }
+    };
+
+    fetchDepartments();
+  }, []);
 
   /* -------- Handlers -------- */
 
@@ -158,9 +173,9 @@ export default function EmployeeForm() {
 
     try {
       if (isEditMode) {
-        await updateEmployeeApi(id, values);
+        await updateEmployee(id, values);
       } else {
-        await createEmployeeApi(values);
+        await createEmployee(values);
       }
       navigate("/employees");
     } catch (err) {
@@ -236,7 +251,7 @@ export default function EmployeeForm() {
               onChange={handleChange}
               onBlur={handleBlur}
               error={touched.department && errors.department}
-              options={DEPARTMENTS}
+              options={departments}
               required
             />
           </div>
