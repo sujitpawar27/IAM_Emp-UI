@@ -1,10 +1,10 @@
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
+import EmployeeForm from "./pages/EmployeeForm";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import AppLayout from "./components/layout/AppLayout";
-// import EmployeeForm from "./pages/EmployeeForm";
 
 function App() {
   const isAuthenticated = true; 
@@ -26,11 +26,10 @@ function App() {
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
 
-        {/* Employee routes */}
-        {/* <Route path="employee">
+        <Route path="employee">
           <Route index element={<EmployeeForm />} />
           <Route path=":id" element={<EmployeeForm />} />
-        </Route> */}
+        </Route>
       </Route>
     </Routes>
   );
