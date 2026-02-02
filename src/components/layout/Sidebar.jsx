@@ -1,7 +1,9 @@
 import React from "react";
-import { Layout, Menu, Divider } from "antd";
+import { Layout, Menu, Divider, Input } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
 import { FiUser } from "react-icons/fi";
+import { SearchOutlined } from "@ant-design/icons";
+
 
 export default function Sidebar({ collapsed, onCollapse, menuItems }) {
   return (
@@ -14,22 +16,30 @@ export default function Sidebar({ collapsed, onCollapse, menuItems }) {
       collapsedWidth="var(--sidebarClosedWidth)"
       className="sidebar-component"
     >
-      {/* ================= TOP USER SECTION ================= */}
       <div
-        className="sidebar-top-logo flex items-center justify-center gap-2 py-4"
-        style={{ textAlign: "center" }}
+  className="sidebar-top-logo flex items-center justify-center gap-2 py-2"
+  style={{ textAlign: "center" }}
       >
         <FiUser className="text-lg" />
         {!collapsed && <span className="text-base font-medium">User</span>}
       </div>
-
-      {/* ================= CONTENT ================= */}
-      <div className="sidebar-content flex flex-col h-full">
-        <div className="p-2">{/* <ClientSelector /> */}</div>
-
         <Divider className="my-0" />
 
-        {/* ================= MENU ================= */}
+        <div className="px-3 py-3">
+        {collapsed ? (
+          <div className="flex justify-center">
+            <SearchOutlined className="text-lg text-gray-500" />
+          </div>
+        ) : (
+          <Input
+            placeholder="Search menu..."
+            prefix={<SearchOutlined />}
+            allowClear
+          />
+        )}
+      </div>
+      <div className="sidebar-content flex flex-col h-full">
+
         <Menu
           theme="light"
           mode="inline"

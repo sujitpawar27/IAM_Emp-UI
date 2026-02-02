@@ -40,22 +40,18 @@ export default function AppLayout() {
 
   return (
     <Layout hasSider className="h-screen bg-slate-50">
-      {/* ================= SIDEBAR ================= */}
       <Sidebar
         collapsed={sidebarCollapsed}
         onCollapse={(value) => setSidebarCollapsed(value)}
         menuItems={menuItems}
       />
 
-      {/* ================= MAIN LAYOUT ================= */}
       <Layout className="relative">
-        {/* NAVBAR */}
         <Navbar
           collapsed={sidebarCollapsed}
           setCollapse={setSidebarCollapsed}
         />
 
-        {/* PAGE CONTENT */}
         <Content className="p-4 lg:p-6 overflow-auto bg-slate-50">
           <Outlet />
         </Content>
