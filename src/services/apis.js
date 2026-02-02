@@ -15,9 +15,7 @@ export const createEmployeeApi = async (data) => {
 };
 
 export const getDepartmentsApi = async () => {
-    const res = await fetch("http://127.0.0.1:8000/departments");
-    console.log("getDepartmentsApi", res);
-    
+    const res = await fetch("http://127.0.0.1:8000/departments");    
     return res.json();
   };
 
@@ -31,8 +29,6 @@ export const getDepartmentsApi = async () => {
   };
 
   export const getEmployeeByIdApi = async (id) => {
-    const res = await fetch(`${BASE_URL}/${id}`);
-    console.log();
-    
+    const res = await fetch(`${BASE_URL}/${id}`);    
     return res.json();
   }
