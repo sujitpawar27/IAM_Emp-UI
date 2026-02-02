@@ -1,42 +1,46 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+@import "tailwindcss";
+
+:root {
+  /* Sidebar */
+  --sidebarBackground: #ffffff;
+  --sidebarTextColor: #1f2937;
+  --sidebarBorder: #e5e7eb;
+  --sidebarOpenWidth: 160px;
+  --sidebarClosedWidth: 80px;
+
+  /* Navbar */
+  --navbarHeight: 56px;
+  --navbarHeight: 56px;
+  --navbarBackground: #ffffff;
+  --navbarBorder: #e5e7eb;
+
+  /* Status colors (future-proof) */
+  --successTextColor: #16a34a;
+  --errorTextColor: #dc2626;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Sidebar base */
+.sidebar-component {
+  background: var(--sidebarBackground) !important;
+  color: var(--sidebarTextColor);
+  border-right: 1px solid var(--sidebarBorder);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Navbar base */
+.navbar-component {
+  height: var(--navbarHeight);
+  background-color: var(--navbarBackground) !important;
+  border-bottom: 1px solid var(--navbarBorder);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Sidebar menu item bottom border */
+.sidebar-component .ant-menu-item,
+.sidebar-component .ant-menu-submenu-title {
+  margin: 0 !important;
+  border-bottom: 1px solid var(--sidebarBorder);
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+/* Remove last item border (optional polish) */
+.sidebar-component .ant-menu-item:last-child {
+  border-bottom: none;
 }
