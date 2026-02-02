@@ -1,32 +1,20 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Button from "../components/common/Button";
 import Table from "../components/common/Table";
-
-/* -------------------- API -------------------- */
-
-const BASE_URL = "http://127.0.0.1:8000/users";
-
-const getEmployeesApi = async () => {
-  const res = await fetch(BASE_URL);
-  if (!res.ok) throw new Error("Failed to fetch employees");
-  return res.json();
-};
-
-const deleteEmployeeApi = async (id) => {
-  const res = await fetch(`${BASE_URL}/${id}/`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to delete employee");
-};
+import { fetchEmployees, deleteEmployee } from "../store/slices/employeesSlice";
+import { useState } from "react";
 
 /* -------------------- Component -------------------- */
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25, 50];
 
 export default function Dashboard() {
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { list: employees, loading, error } = useSelector(
+    (state) => state.employees
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -34,21 +22,12 @@ export default function Dashboard() {
   /* -------- Fetch employees -------- */
 
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setLoading(true);
-        const data = await getEmployeesApi();
-        setEmployees(data);
-      } catch (error) {
-        console.error(error);
-        alert("Failed to load employees");
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
-    fetchEmployees();
-  }, []);
+  useEffect(() => {
+    if (error) alert(error);
+  }, [error]);
 
   /* -------- Pagination -------- */
 
@@ -63,14 +42,12 @@ export default function Dashboard() {
   /* -------- Handlers -------- */
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this employee?")) return;
+    if (!window.confirm("Are you sure you want to delete this employee?"))
+      return;
 
-    try {
-      await deleteEmployeeApi(id);
-      setEmployees((prev) => prev.filter((emp) => emp.id !== id));
-    } catch (error) {
-      console.error(error);
-      alert("Failed to delete employee");
+    const result = await dispatch(deleteEmployee(id));
+    if (deleteEmployee.rejected.match(result)) {
+      alert(result.payload || "Failed to delete employee");
     }
   };
 
@@ -86,7 +63,6 @@ export default function Dashboard() {
       render: (value) => value?.name ?? "—",
     },
   ];
-  console.log("Employees", paginatedData);
 
   /* -------------------- UI -------------------- */
 
