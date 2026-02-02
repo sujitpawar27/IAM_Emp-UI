@@ -1,5 +1,6 @@
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Dashboard from "./pages/Dashboard";
 import EmployeeForm from "./pages/EmployeeForm";
 import Reports from "./pages/Reports";
@@ -7,7 +8,7 @@ import Settings from "./pages/Settings";
 import AppLayout from "./components/layout/AppLayout";
 
 function App() {
-  const isAuthenticated = true; 
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated); 
 
   return (
     <Routes>

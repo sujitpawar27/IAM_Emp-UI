@@ -1,22 +1,17 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/common/Button";
 import Input from "../components/common/Input";
 import Select from "../components/common/Select";
-import { createEmployeeApi, getDepartmentsApi, getEmployeeByIdApi, updateEmployeeApi } from "../services/apis";
+import { getEmployeeByIdApi } from "../services/apis";
+import {
+  createEmployee,
+  updateEmployee,
+} from "../store/slices/employeesSlice";
+import { fetchDepartments } from "../store/slices/departmentsSlice";
 
 /* -------------------- Constants -------------------- */
-
-const BASE_URL = "http://127.0.0.1:8000/users";
-
-// const DEPARTMENTS = [
-//   { value: "IT", label: "IT" },
-//   { value: "Design", label: "Design" },
-//   { value: "Operations", label: "Operations" },
-//   { value: "HR", label: "HR" },
-//   { value: "Finance", label: "Finance" },
-//   { value: "Marketing", label: "Marketing" },
-// ];
 
 const ROLES = [
   { value: "Developer", label: "Developer" },
@@ -28,28 +23,6 @@ const ROLES = [
 ];
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/* -------------------- API Functions -------------------- */
-
-const getEmployeeById = async (id) => {
-  const res = await getEmployeeByIdApi(id);
-  console.log("res",res);
-  
-  if (!res.ok) throw new Error("Failed to fetch employee");
-  return res.json();
-};
-
-const createEmployee = async (data) => {
-  const res = await createEmployeeApi(data);
-  if (!res.ok) throw new Error("Failed to create employee");
-  return res.json();
-};
-
-const updateEmployee = async (id, data) => {
-  const res = await updateEmployeeApi(id,data);
-  if (!res.ok) throw new Error("Failed to update employee");
-  return res.json();
-};
 
 /* -------------------- Validation -------------------- */
 
@@ -65,7 +38,6 @@ function validateForm(values) {
     errors.email = "Enter a valid email address";
 
   if (!values.role) errors.role = "Role is required";
-  // if (!values.department) errors.department = "Department is required";
 
   if (values.phone && !/^[\d\s\-+()]*$/.test(values.phone))
     errors.phone = "Invalid phone number";
@@ -78,7 +50,15 @@ function validateForm(values) {
 export default function EmployeeForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const isEditMode = Boolean(id);
+
+  const { list: departmentsRaw } = useSelector((state) => state.departments);
+
+  const departments = departmentsRaw.map((d) => ({
+    value: d.id ?? d.name,
+    label: d.name,
+  }));
 
   const [values, setValues] = useState({
     name: "",
@@ -90,10 +70,14 @@ export default function EmployeeForm() {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditMode);
-  const [departments, setDepartments] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /* -------- Fetch departments -------- */
+
+  useEffect(() => {
+    dispatch(fetchDepartments());
+  }, [dispatch]);
 
   /* -------- Fetch employee on edit -------- */
 
@@ -107,7 +91,7 @@ export default function EmployeeForm() {
           name: employee.name || "",
           email: employee.email || "",
           role: employee.role || "",
-          department: employee.department.name || "",
+          department: employee.department?.id ?? employee.department?.name ?? "",
           phone: employee.phone || "",
         });
       } catch (err) {
@@ -120,24 +104,6 @@ export default function EmployeeForm() {
 
     fetchEmployee();
   }, [id, isEditMode, navigate]);
-
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const data = await getDepartmentsApi();
-        setDepartments(
-          data.map((d) => ({
-            value: d.id ?? d.name,
-            label: d.name,
-          }))
-        );
-      } catch {
-        alert("Failed to load departments");
-      }
-    };
-
-    fetchDepartments();
-  }, []);
 
   /* -------- Handlers -------- */
 
@@ -169,13 +135,31 @@ export default function EmployeeForm() {
     setErrors(formErrors);
     if (Object.keys(formErrors).length > 0) return;
 
-    setIsSubmitting(true);
+    const payload = {
+      name: values.name.trim(),
+      email: values.email.trim(),
+      role: values.role,
+      department_id: Number(values.department),
+    };
 
+    setIsSubmitting(true);
     try {
       if (isEditMode) {
-        await updateEmployee(id, values);
+        const result = await dispatch(
+          updateEmployee({ id, data: payload })
+        );
+        if (updateEmployee.rejected.match(result)) {
+          alert(result.payload || "Something went wrong. Please try again.");
+          setIsSubmitting(false);
+          return;
+        }
       } else {
-        await createEmployee(values);
+        const result = await dispatch(createEmployee(payload));
+        if (createEmployee.rejected.match(result)) {
+          alert(result.payload || "Something went wrong. Please try again.");
+          setIsSubmitting(false);
+          return;
+        }
       }
       navigate("/employees");
     } catch (err) {
