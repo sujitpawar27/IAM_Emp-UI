@@ -1,1 +1,46 @@
 @import "tailwindcss";
+
+:root {
+  /* Sidebar */
+  --sidebarBackground: #ffffff;
+  --sidebarTextColor: #1f2937;
+  --sidebarBorder: #e5e7eb;
+  --sidebarOpenWidth: 160px;
+  --sidebarClosedWidth: 80px;
+
+  /* Navbar */
+  --navbarHeight: 56px;
+  --navbarHeight: 56px;
+  --navbarBackground: #ffffff;
+  --navbarBorder: #e5e7eb;
+
+  /* Status colors (future-proof) */
+  --successTextColor: #16a34a;
+  --errorTextColor: #dc2626;
+}
+
+/* Sidebar base */
+.sidebar-component {
+  background: var(--sidebarBackground) !important;
+  color: var(--sidebarTextColor);
+  border-right: 1px solid var(--sidebarBorder);
+}
+
+/* Navbar base */
+.navbar-component {
+  height: var(--navbarHeight);
+  background-color: var(--navbarBackground) !important;
+  border-bottom: 1px solid var(--navbarBorder);
+}
+
+/* Sidebar menu item bottom border */
+.sidebar-component .ant-menu-item,
+.sidebar-component .ant-menu-submenu-title {
+  margin: 0 !important;
+  border-bottom: 1px solid var(--sidebarBorder);
+}
+
+/* Remove last item border (optional polish) */
+.sidebar-component .ant-menu-item:last-child {
+  border-bottom: none;
+}
